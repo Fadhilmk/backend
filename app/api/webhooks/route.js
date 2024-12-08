@@ -4,13 +4,13 @@ import { initAdmin } from "../../../firebaseAdmin"; // Firebase Admin
 import crypto from "crypto"; // For signature verification
 
 // Initialize Firebase Admin SDK
-initAdmin();
 
 // Initialize Pub/Sub
 const pubsub = new PubSub();
 
 // Function to publish a message to a Pub/Sub topic
 async function publishToPubSub(topicName, data) {
+  initAdmin();
   const dataBuffer = Buffer.from(JSON.stringify(data));
   await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
   console.log(`Published message to topic: ${topicName}`);
