@@ -1,6 +1,5 @@
 import { PubSub } from "@google-cloud/pubsub";
-import { db } from "../firebaseAdmin"; // Firebase Admin setup
-
+import { initAdmin } from "@/db/firebaseAdmin";
 const pubsub = new PubSub();
 
 async function processCommentMessage(message) {
@@ -10,8 +9,22 @@ async function processCommentMessage(message) {
   const { igUserId, mediaId, commentId, text, fromId, username } = data;
 
   try {
-    const docRef = db.collection("webhooks").doc(igUserId).collection("comments").doc(commentId);
-    await docRef.set({ mediaId, text, fromId, username, processedAt: new Date().toISOString() });
+    await initAdmin();
+    const admin = (await import("firebase-admin")).default;
+    const db = admin.firestore();
+    
+    const docRef = db
+      .collection("webhooks")
+      .doc(igUserId)
+      .collection("comments")
+      .doc(commentId);
+    await docRef.set({
+      mediaId,
+      text,
+      fromId,
+      username,
+      processedAt: new Date().toISOString(),
+    });
 
     console.log(`Comment ${commentId} processed successfully.`);
     message.ack();
