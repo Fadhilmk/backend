@@ -226,7 +226,6 @@ async function publishToPubSub(topicName, data) {
     const dataBuffer = Buffer.from(JSON.stringify(data));
     const messageId = await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
     console.log(`Message published to topic: ${topicName}, messageId: ${messageId}`);
-    return messageId;
   } catch (error) {
     console.error(`Failed to publish message to Pub/Sub: ${error.message}`);
     throw error;
@@ -287,7 +286,23 @@ export async function POST(req) {
     const jsonBody = JSON.parse(body);
     console.log("Webhook event received:", JSON.stringify(jsonBody, null, 2));
 
-    // Process events
+    // Process events asynchronously
+    processWebhookEvent(jsonBody);
+
+    // Immediately return a success response to avoid timeout
+    return NextResponse.json({ message: "EVENT_RECEIVED" }, { status: 200 });
+  } catch (error) {
+    console.error("Error handling POST request:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+/**
+ * Processes webhook events asynchronously.
+ * @param {object} jsonBody - The parsed webhook request body.
+ */
+async function processWebhookEvent(jsonBody) {
+  try {
     for (const entry of jsonBody.entry) {
       const userId = entry.id;
 
@@ -313,10 +328,7 @@ export async function POST(req) {
         }
       }
     }
-
-    return NextResponse.json({ message: "EVENT_RECEIVED" }, { status: 200 });
   } catch (error) {
-    console.error("Error handling POST request:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Error processing webhook event asynchronously:", error);
   }
 }
