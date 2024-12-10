@@ -213,14 +213,19 @@ import { NextResponse } from "next/server";
 import { PubSub } from "@google-cloud/pubsub";
 import crypto from "crypto";
 
-// Initialize Pub/Sub client
-const pubsub = new PubSub();
+const pubSubClient = new PubSub();
 
 // Function to publish a message to a Pub/Sub topic
 async function publishToPubSub(topicName, data) {
   const dataBuffer = Buffer.from(JSON.stringify(data));
-  await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
-  console.log(`Published message to topic: ${topicName}`);
+  const topic = pubSubClient.topic(topicName);
+
+  try {
+    const messageId = await topic.publishMessage({ data: dataBuffer });
+    console.log(`Message published with ID: ${messageId}`);
+  } catch (error) {
+    console.error(`Error publishing message to ${topicName}:`, error.message);
+  }
 }
 
 // Handle GET request for webhook verification
@@ -260,7 +265,7 @@ export async function POST(req) {
   const jsonBody = JSON.parse(body);
   console.log("Webhook event received:", jsonBody);
 
-  // Forward data to Pub/Sub asynchronously
+  // Publish events to Pub/Sub
   (async () => {
     try {
       for (const entry of jsonBody.entry) {
