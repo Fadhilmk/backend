@@ -226,6 +226,7 @@ async function publishToPubSub(topicName, data) {
     const dataBuffer = Buffer.from(JSON.stringify(data));
     const messageId = await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
     console.log(`Message published to topic: ${topicName}, messageId: ${messageId}`);
+    return messageId;
   } catch (error) {
     console.error(`Failed to publish message to Pub/Sub: ${error.message}`);
     throw error;
@@ -244,7 +245,7 @@ function verifySignature(payload, hubSignature, appSecret) {
 
   const signatureHash = hubSignature.split("sha256=")[1];
   const expectedHash = crypto.createHmac("sha256", appSecret).update(payload).digest("hex");
-  
+
   return crypto.timingSafeEqual(Buffer.from(signatureHash), Buffer.from(expectedHash));
 }
 
@@ -286,40 +287,32 @@ export async function POST(req) {
     const jsonBody = JSON.parse(body);
     console.log("Webhook event received:", JSON.stringify(jsonBody, null, 2));
 
-    // Process events asynchronously
-    (async () => {
-      try {
-        for (const entry of jsonBody.entry) {
-          const userId = entry.id;
+    // Process events
+    for (const entry of jsonBody.entry) {
+      const userId = entry.id;
 
-          // Process messaging events
-          if (entry.messaging) {
-            for (const messagingEvent of entry.messaging) {
-              if (messagingEvent.message) {
-                console.log(`Publishing messaging event for userId: ${userId}`);
-                await publishToPubSub("process-messages-topic", {
-                  igUserId: userId,
-                  senderId: messagingEvent.sender.id,
-                  messageText: messagingEvent.message.text,
-                });
-              }
-            }
-          }
-
-          // Process comment events
-          if (entry.changes) {
-            for (const change of entry.changes) {
-              if (change.field === "comments") {
-                console.log(`Publishing comment event for userId: ${userId}`);
-                await publishToPubSub("process-comments-topic", change.value);
-              }
-            }
+      if (entry.messaging) {
+        for (const messagingEvent of entry.messaging) {
+          if (messagingEvent.message) {
+            console.log(`Publishing messaging event for userId: ${userId}`);
+            await publishToPubSub("process-messages-topic", {
+              igUserId: userId,
+              senderId: messagingEvent.sender.id,
+              messageText: messagingEvent.message.text,
+            });
           }
         }
-      } catch (asyncError) {
-        console.error("Error processing webhook events asynchronously:", asyncError);
       }
-    })();
+
+      if (entry.changes) {
+        for (const change of entry.changes) {
+          if (change.field === "comments") {
+            console.log(`Publishing comment event for userId: ${userId}`);
+            await publishToPubSub("process-comments-topic", change.value);
+          }
+        }
+      }
+    }
 
     return NextResponse.json({ message: "EVENT_RECEIVED" }, { status: 200 });
   } catch (error) {
