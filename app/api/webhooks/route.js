@@ -217,12 +217,16 @@ import path from 'path';
 const fs = require('fs');
 const projectId = 'the-madi';
 
-const keyPath = path.join('/tmp', 'service-account-key.json');
-fs.writeFileSync(keyPath, process.env.GCLOUD_CREDENTIALS);
+// const keyPath = path.join('/tmp', 'service-account-key.json');
+// fs.writeFileSync(keyPath, process.env.GCLOUD_CREDENTIALS);
 
-// Initialize the PubSub client
-const pubsub = new PubSub({ keyFilename: keyPath });
-// Function to publish a message to a Pub/Sub topic
+// // Initialize the PubSub client
+// const pubsub = new PubSub({ keyFilename: keyPath });
+// // Function to publish a message to a Pub/Sub topic
+
+const credentials = JSON.parse(process.env.GCLOUD_CREDENTIALS);
+const pubsub = new PubSub({ credentials });
+
 async function publishToPubSub(topicName, data) {
   console.log("processing pub/sub")
   try {
