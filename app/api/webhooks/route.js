@@ -218,10 +218,11 @@ const projectId = 'the-madi';
 const pubsub = new PubSub({
   projectId,
   credentials: {
-    clientEmail: process.env.GCLOUD_CLIENT_EMAIL,
-    privateKey: process.env.GCLOUD_PRIVATE_KEY,
+    client_email: process.env.GCLOUD_CLIENT_EMAIL.replace(/^"|"$/g, ''), // Remove extra quotes
+    private_key: process.env.GCLOUD_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^"|"$/g, ''), // Replace escaped newlines and remove extra quotes
   },
 });
+
 
 // Function to publish a message to a Pub/Sub topic
 async function publishToPubSub(topicName, data) {
