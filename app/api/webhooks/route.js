@@ -211,27 +211,15 @@
 
 import { NextResponse } from "next/server";
 import { PubSub } from "@google-cloud/pubsub";
-import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import crypto from "crypto";
 
 const projectId = 'the-madi';
 
-async function getSecret(secretName) {
-  const client = new SecretManagerServiceClient();
-  const [version] = await client.accessSecretVersion({
-    name: client.secretVersionPath(projectId, secretName, 'latest'),
-  });
-  const payload = version.payload.data.toString('utf8');
-  return JSON.parse(payload);
-}
-
-const serviceAccountKey = await getSecret('service-account-key');
-// Initialize Pub/Sub client
 const pubsub = new PubSub({
   projectId,
   credentials: {
-    clientEmail: serviceAccountKey.client_email,
-    privateKey: serviceAccountKey.private_key,
+    clientEmail: process.env.GCLOUD_CLIENT_EMAIL,
+    privateKey: process.env.GCLOUD_PRIVATE_KEY,
   },
 });
 
