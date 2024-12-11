@@ -230,6 +230,7 @@ async function publishToPubSub(topicName, data) {
     console.log("entered try")
     const dataBuffer = Buffer.from(JSON.stringify(data)); // Ensure JSON serialization
     console.log("data buffer")
+    console.log(pubsub)
     const messageId = await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
     console.log(`Published message to topic: ${topicName}, Message ID: ${messageId}`);
     return messageId;
