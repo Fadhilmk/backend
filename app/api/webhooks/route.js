@@ -232,7 +232,7 @@ async function publishToPubSub(topicName, data) {
     console.log(`Published message to topic: ${topicName}, Message ID: ${messageId}`);
     return messageId;
   } catch (error) {
-    console.error(`Failed to publish message to topic ${topicName}:`, error);
+    console.error(`Failed to publishes message to topic ${topicName}:`, error);
     throw error;
   }
 }
