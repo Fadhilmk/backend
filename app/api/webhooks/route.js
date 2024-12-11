@@ -229,7 +229,7 @@ async function accessSecret(secretName) {
 const keyFilePath = await accessSecret('service-account-key'); // Replace 'service-account-key' with your secret's name
 
 const pubsub = new PubSub({
-  keyFilename:keyFilePath,
+  keyFilename:process.env.GOOGLE_APPLICATION_CREDENTIALS,
 });
 
 // Function to publish a message to a Pub/Sub topic
