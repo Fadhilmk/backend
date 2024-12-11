@@ -213,12 +213,25 @@ import { NextResponse } from "next/server";
 import { PubSub } from "@google-cloud/pubsub";
 import crypto from "crypto";
 
-const serviceAccountKeyFilePath = process.env.SERVICE_ACCOUNT_KEY_FILE_PATH;
-const projectid = process.env.GOOGLE_CLOUD_PROJECT
+const projectId = 'the-madi';
+
+async function getSecret(secretName) {
+  const client = new SecretManagerServiceClient();
+  const [version] = await client.accessSecretVersion({
+    name: client.secretVersionPath(projectId, secretName, 'latest'),
+  });
+  const payload = version.payload.data.toString('utf8');
+  return JSON.parse(payload);
+}
+
+const serviceAccountKey = await getSecret('service-account-key');
 // Initialize Pub/Sub client
 const pubsub = new PubSub({
-  projectId: projectid, 
-  keyFilename: serviceAccountKeyFilePath,
+  projectId,
+  credentials: {
+    clientEmail: serviceAccountKey.client_email,
+    privateKey: serviceAccountKey.private_key,
+  },
 });
 
 // Function to publish a message to a Pub/Sub topic
