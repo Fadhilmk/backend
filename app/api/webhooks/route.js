@@ -212,15 +212,13 @@
 import { NextResponse } from "next/server";
 import { PubSub } from "@google-cloud/pubsub";
 import crypto from "crypto";
+import path from 'path';
 
+const keyFilePath = path.join(process.cwd(), "keys.json");
 const projectId = 'the-madi';
 
 const pubsub = new PubSub({
-  projectId,
-  credentials: {
-    clientEmail: process.env.GCLOUD_CLIENT_EMAIL?.replace(/^"|"$/g, ''),
-    privateKey: process.env.GCLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/^"|"$/g, ''),
-  },
+  keyFilename:keyFilePath,
 });
 
 // Function to publish a message to a Pub/Sub topic
