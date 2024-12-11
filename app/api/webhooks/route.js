@@ -235,10 +235,11 @@ const credentials = {
   privateKey: serviceAccountKey.private_key,
 };
 
-const pubsub = new PubSub({
-  projectId,
-  credentials,
-});
+const keyPath = path.join('/tmp', 'service-account-key.json');
+fs.writeFileSync(keyPath, process.env.GCLOUD_CREDENTIALS);
+
+// Initialize the PubSub client
+const pubsub = new PubSub({ keyFilename: keyPath });
 // Function to publish a message to a Pub/Sub topic
 async function publishToPubSub(topicName, data) {
   console.log("processing pub/sub")
