@@ -214,7 +214,7 @@ import { PubSub } from "@google-cloud/pubsub";
 import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import crypto from "crypto";
 import path from 'path';
-
+const fs = require('fs');
 const projectId = 'the-madi';
 
 const keyPath = path.join('/tmp', 'service-account-key.json');
