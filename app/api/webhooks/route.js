@@ -213,9 +213,19 @@ import { NextResponse } from "next/server";
 import { PubSub } from "@google-cloud/pubsub";
 import crypto from "crypto";
 import path from 'path';
+const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 
-const keyFilePath = path.join(process.cwd(), "keys.json");
-const projectId = 'the-madi';
+
+async function accessSecret(secretName) {
+  const client = new SecretManagerServiceClient();
+  const [version] = await client.accessSecretVersion({
+    name: client.secretVersionPath(projectId, secretName, 'latest'),
+  });
+
+  return version.payload.data.toString('utf8');
+}
+
+const keyFilePath = await accessSecret('service-account-key'); // Replace 'service-account-key' with your secret's name
 
 const pubsub = new PubSub({
   keyFilename:keyFilePath,
