@@ -227,12 +227,14 @@ const pubsub = new PubSub({
 async function publishToPubSub(topicName, data) {
   console.log("processing pub/sub")
   try {
+    console.log("entered try")
     const dataBuffer = Buffer.from(JSON.stringify(data)); // Ensure JSON serialization
+    console.log("data buffer")
     const messageId = await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
     console.log(`Published message to topic: ${topicName}, Message ID: ${messageId}`);
     return messageId;
   } catch (error) {
-    console.error(`Failed to publishes message to topic ${topicName}:`, error);
+    console.error(`Failed to publish message to topic ${topicName}:`, error);
     throw error;
   }
 }
