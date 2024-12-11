@@ -215,30 +215,24 @@ import crypto from "crypto";
 
 const projectId = 'the-madi';
 
-// Initialize Pub/Sub client with environment variables
 const pubsub = new PubSub({
   projectId,
   credentials: {
-    client_email: process.env.GCLOUD_CLIENT_EMAIL,
-    private_key: process.env.GCLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'), // Ensure correct key formatting
+    clientEmail: process.env.GCLOUD_CLIENT_EMAIL,
+    privateKey: process.env.GCLOUD_PRIVATE_KEY,
   },
 });
 
 // Function to publish a message to a Pub/Sub topic
 async function publishToPubSub(topicName, data) {
-  console.log(`Publishing to topic: ${topicName}`);
+  console.log("processing pub/sub")
   try {
-    const dataBuffer = Buffer.from(JSON.stringify(data));
+    const dataBuffer = Buffer.from(JSON.stringify(data)); // Ensure JSON serialization
     const messageId = await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
-    console.log(`Published message ID: ${messageId}`);
+    console.log(`Published message to topic: ${topicName}, Message ID: ${messageId}`);
     return messageId;
   } catch (error) {
-    console.error(`Error publishing to topic ${topicName}:`, {
-      errorMessage: error.message,
-      errorStack: error.stack,
-      topicName,
-      data,
-    });
+    console.error(`Failed to publishes message to topic ${topicName}:`, error);
     throw error;
   }
 }
