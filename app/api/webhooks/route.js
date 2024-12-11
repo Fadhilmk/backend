@@ -226,14 +226,19 @@ const pubsub = new PubSub({
 
 // Function to publish a message to a Pub/Sub topic
 async function publishToPubSub(topicName, data) {
-  console.log("Processing Pub/Sub...");
+  console.log(`Publishing to topic: ${topicName}`);
   try {
-    const dataBuffer = Buffer.from(JSON.stringify(data)); // Ensure JSON serialization
+    const dataBuffer = Buffer.from(JSON.stringify(data));
     const messageId = await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
-    console.log(`Published message to topic: ${topicName}, Message ID: ${messageId}`);
+    console.log(`Published message ID: ${messageId}`);
     return messageId;
   } catch (error) {
-    console.error(`Failed to publish message to topic ${topicName}:`, error);
+    console.error(`Error publishing to topic ${topicName}:`, {
+      errorMessage: error.message,
+      errorStack: error.stack,
+      topicName,
+      data,
+    });
     throw error;
   }
 }
