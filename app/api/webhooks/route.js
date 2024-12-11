@@ -230,12 +230,14 @@ async function getSecret(secretName) {
 const serviceAccountKey = await getSecret('service-account-key');
 
 // Initialize Pub/Sub client (using retrieved key)
+const credentials = {
+  clientEmail: serviceAccountKey.client_email,
+  privateKey: serviceAccountKey.private_key,
+};
+
 const pubsub = new PubSub({
   projectId,
-  credentials: {
-    clientEmail: serviceAccountKey.client_email,
-    privateKey: serviceAccountKey.private_key,
-  },
+  credentials,
 });
 // Function to publish a message to a Pub/Sub topic
 async function publishToPubSub(topicName, data) {
