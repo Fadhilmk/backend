@@ -217,24 +217,6 @@ import path from 'path';
 
 const projectId = 'the-madi';
 
-async function getSecret(secretName) {
-  const client = new SecretManagerServiceClient();
-  const [version] = await client.accessSecretVersion({
-    name: client.secretVersionPath(projectId, secretName, 'latest'),
-  });
-  const payload = version.payload.data.toString('utf8');
-  return JSON.parse(payload);
-}
-
-// Retrieve service account key from Secret Manager
-const serviceAccountKey = await getSecret('service-account-key');
-
-// Initialize Pub/Sub client (using retrieved key)
-const credentials = {
-  clientEmail: serviceAccountKey.client_email,
-  privateKey: serviceAccountKey.private_key,
-};
-
 const keyPath = path.join('/tmp', 'service-account-key.json');
 fs.writeFileSync(keyPath, process.env.GCLOUD_CREDENTIALS);
 
