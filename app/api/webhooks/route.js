@@ -213,11 +213,17 @@ import { NextResponse } from "next/server";
 import { PubSub } from "@google-cloud/pubsub";
 import crypto from "crypto";
 
+const serviceAccountKeyFilePath = process.env.SERVICE_ACCOUNT_KEY_FILE_PATH;
+const projectid = process.env.GOOGLE_CLOUD_PROJECT
 // Initialize Pub/Sub client
-const pubsub = new PubSub();
+const pubsub = new PubSub({
+  projectId: projectid, 
+  keyFilename: serviceAccountKeyFilePath,
+});
 
 // Function to publish a message to a Pub/Sub topic
 async function publishToPubSub(topicName, data) {
+  console.log("processing pub/sub")
   try {
     const dataBuffer = Buffer.from(JSON.stringify(data)); // Ensure JSON serialization
     const messageId = await pubsub.topic(topicName).publishMessage({ data: dataBuffer });
