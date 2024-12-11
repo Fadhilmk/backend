@@ -211,6 +211,7 @@
 
 import { NextResponse } from "next/server";
 import { PubSub } from "@google-cloud/pubsub";
+import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import crypto from "crypto";
 
 const projectId = 'the-madi';
