@@ -215,6 +215,7 @@ import crypto from "crypto";
 import path from 'path';
 const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 
+const projectId = 'the-madi';
 
 async function accessSecret(secretName) {
   const client = new SecretManagerServiceClient();
