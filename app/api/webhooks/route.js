@@ -375,7 +375,7 @@ export async function POST(req) {
             if (messagingEvent.message) {
               promises.push(
                 sendToFirebaseFunction(
-                  `${process.env.FIREBASE_BASE_URL}/processMessages`,
+                  `https://processmessages-1020225404793.asia-south1.run.app`,
                   {
                     igUserId: userId,
                     senderId: messagingEvent.sender.id,
@@ -392,7 +392,7 @@ export async function POST(req) {
             if (change.field === "comments") {
               promises.push(
                 sendToFirebaseFunction(
-                  `${process.env.FIREBASE_BASE_URL}/processComments`,
+                  `https://processcomments-1020225404793.asia-south1.run.app`,
                   change.value
                 )
               );
