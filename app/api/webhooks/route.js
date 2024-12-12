@@ -369,16 +369,14 @@ export async function POST(req) {
 
   // Process data asynchronously
   (async () => {
-    const promises = [];
     try {
-      for (const entry of jsonBody.entry) {
+      const promises = jsonBody.entry.flatMap((entry) => {
         const userId = entry.id;
-
-        if (entry.messaging) {
-          for (const messagingEvent of entry.messaging) {
-            if (messagingEvent.message) {
-              promises.push(
-                sendToFirebaseFunction(
+  
+        const messagingPromises =
+          entry.messaging?.map((messagingEvent) =>
+            messagingEvent.message
+              ? sendToFirebaseFunction(
                   `https://processmessages-1020225404793.asia-south1.run.app`,
                   {
                     igUserId: userId,
@@ -386,31 +384,28 @@ export async function POST(req) {
                     messageText: messagingEvent.message.text,
                   }
                 )
-              );
-            }
-          }
-        }
-
-        if (entry.changes) {
-          for (const change of entry.changes) {
-            if (change.field === "comments") {
-              promises.push(
-                sendToFirebaseFunction(
+              : null
+          ) || [];
+  
+        const changesPromises =
+          entry.changes?.map((change) =>
+            change.field === "comments"
+              ? sendToFirebaseFunction(
                   `https://processcomments-1020225404793.asia-south1.run.app`,
                   change.value
                 )
-              );
-            }
-          }
-        }
-      }
-
-      // Start processing all data asynchronously
-      await Promise.allSettled(promises);
+              : null
+          ) || [];
+  
+        return [...messagingPromises, ...changesPromises].filter(Boolean);
+      });
+  
+      await Promise.all(promises);
     } catch (error) {
       console.error("Error processing webhook events asynchronously:", error);
     }
   })();
+  
 
   // Respond immediately to Instagram
   return NextResponse.json({ message: "EVENT_RECEIVED" }, { status: 200 });
