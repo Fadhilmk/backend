@@ -301,6 +301,7 @@ import crypto from "crypto";
 // Helper function to send data to Firebase Function
 async function sendToFirebaseFunction(url, payload) {
   try {
+    console.log("Sending payload to Firebase Function:", url, payload);
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -309,11 +310,14 @@ async function sendToFirebaseFunction(url, payload) {
 
     if (!response.ok) {
       console.error(`Failed to call Firebase Function at ${url}:`, await response.text());
+    } else {
+      console.log(`Firebase Function responded with: ${await response.text()}`);
     }
   } catch (error) {
     console.error("Error calling Firebase Function:", error);
   }
 }
+
 
 // Function to verify webhook signature
 function verifySignature(payload, hubSignature, appSecret) {
